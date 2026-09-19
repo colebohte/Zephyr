@@ -1,3 +1,5 @@
+import org.gradle.internal.os.OperatingSystem
+
 plugins {
     id 'java'
 }
@@ -5,11 +7,64 @@ plugins {
 group = 'com.foxington'
 version = '1.0-SNAPSHOT'
 
+project.ext.lwjglVersion = "3.4.3"
+
+switch (OperatingSystem.current()) {
+    case OperatingSystem.FREE_BSD:
+        project.ext.lwjglNatives = "natives-freebsd"
+        break
+    case OperatingSystem.LINUX:
+        project.ext.lwjglNatives = "natives-linux"
+        def osArch = System.getProperty("os.arch")
+        if (osArch.startsWith("arm") || osArch.startsWith("aarch64")) {
+            project.ext.lwjglNatives += osArch.contains("64") || osArch.startsWith("armv8") ? "-arm64" : "-arm32"
+        } else if (osArch.startsWith("ppc")) {
+            project.ext.lwjglNatives += "-ppc64le"
+        } else if (osArch.startsWith("riscv")) {
+            project.ext.lwjglNatives += "-riscv64"
+        }
+        break
+    case OperatingSystem.MAC_OS:
+        project.ext.lwjglNatives = System.getProperty("os.arch").startsWith("aarch64") ? "natives-macos-arm64" : "natives-macos"
+        break
+    case OperatingSystem.WINDOWS:
+        def osArch = System.getProperty("os.arch")
+        project.ext.lwjglNatives = osArch.contains("64")
+                ? "natives-windows${osArch.startsWith("aarch64") ? "-arm64" : ""}"
+                : "natives-windows-x86"
+        break
+}
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
+    implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
+
+    implementation "org.lwjgl:lwjgl"
+    implementation "org.lwjgl:lwjgl-assimp"
+    implementation "org.lwjgl:lwjgl-fmod"
+    implementation "org.lwjgl:lwjgl-freetype"
+    implementation "org.lwjgl:lwjgl-glfw"
+    implementation "org.lwjgl:lwjgl-openal"
+    implementation "org.lwjgl:lwjgl-opencl"
+    implementation "org.lwjgl:lwjgl-opengl"
+    implementation "org.lwjgl:lwjgl-opus"
+    implementation "org.lwjgl:lwjgl-sdl"
+    implementation "org.lwjgl:lwjgl-spng"
+    implementation "org.lwjgl:lwjgl-stb"
+    implementation "org.lwjgl:lwjgl::$lwjglNatives"
+    implementation "org.lwjgl:lwjgl-assimp::$lwjglNatives"
+    implementation "org.lwjgl:lwjgl-freetype::$lwjglNatives"
+    implementation "org.lwjgl:lwjgl-glfw::$lwjglNatives"
+    implementation "org.lwjgl:lwjgl-openal::$lwjglNatives"
+    implementation "org.lwjgl:lwjgl-opengl::$lwjglNatives"
+    implementation "org.lwjgl:lwjgl-opus::$lwjglNatives"
+    implementation "org.lwjgl:lwjgl-sdl::$lwjglNatives"
+    implementation "org.lwjgl:lwjgl-spng::$lwjglNatives"
+    implementation "org.lwjgl:lwjgl-stb::$lwjglNatives"
+
     testImplementation platform('org.junit:junit-bom:6.0.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
