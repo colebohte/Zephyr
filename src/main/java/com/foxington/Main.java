@@ -22,7 +22,7 @@ public class Main {
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-        window = glfwCreateWindow(854, 480, "Zephyr", NULL, NULL);
+        window = glfwCreateWindow(854, 480, "Zephyr Client - SINGLEPTEST", NULL, NULL);
         if (window == NULL) {
             throw new RuntimeException("Failed to create the GLFW window");
         }
